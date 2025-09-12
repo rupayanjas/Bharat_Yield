@@ -40,7 +40,7 @@ const Footer = () => {
                 <button
                   type="button"
                   onClick={() => scrollToSection(link.href.replace("#", ""))}
-                  className="text-left w-full text-primary-foreground/80 hover:text-primary-foreground transition-colors duration-200"
+                  className="text-left w-full  hover:text-primary-foreground text-primary duration-200"
                 >
                   {link.name}
                 </button>
@@ -58,7 +58,7 @@ const Footer = () => {
                 <button
                   type="button"
                   onClick={() => scrollToSection(scheme.href.replace("#", ""))}
-                  className="text-left w-full text-primary-foreground/80 hover:text-primary-foreground transition-colors duration-200"
+                  className="text-left w-full  hover:text-primary-foreground text-primary duration-200"
                 >
                   {scheme.name}
                 </button>
@@ -76,7 +76,7 @@ const Footer = () => {
                 <button
                   type="button"
                   onClick={() => scrollToSection(link.href.replace("#", ""))}
-                  className="text-left w-full text-primary-foreground/80 hover:text-primary-foreground transition-colors duration-200"
+                  className="text-left w-full  hover:text-primary-foreground text-primary duration-200"
                 >
                   {link.name}
                 </button>
