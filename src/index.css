@@ -138,3 +138,8 @@
 html {
   scroll-behavior: smooth;
 }
+
+#home {
+ background-image: url('/hero-farming.jpg');
+ background-position: center;
+}
