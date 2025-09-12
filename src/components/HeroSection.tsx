@@ -1,5 +1,4 @@
 import { scrollToSection } from "@/utils/scrollToSection";
-import heroFarmingImage from "@/assets/hero-farming.jpg";
 
 export default function HeroSection() {
   return (
@@ -7,7 +6,7 @@ export default function HeroSection() {
       id="home"
       className="relative h-screen flex flex-col justify-center items-center text-center px-4"
       style={{
-        backgroundImage: `url(${heroFarmingImage})`,
+        backgroundImage: `url(/hero-farming.jpg)`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
