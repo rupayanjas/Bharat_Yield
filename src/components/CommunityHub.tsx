@@ -75,10 +75,10 @@ const CommunityHub = () => {
 
   const getAlertIcon = (type?: string) => {
     switch (type) {
-      case "pest": return "🐛";
-      case "disease": return "🦠";
-      case "weather": return "🌧️";
-      default: return "⚠️";
+      case "pest": return "Pest";
+      case "disease": return "Disease";
+      case "weather": return "Weather";
+      default: return "Alert";
     }
   };
 
@@ -128,7 +128,7 @@ const CommunityHub = () => {
                     Post
                   </Button>
                   <Button variant="outline" size="icon">
-                    📷
+                    Attach
                   </Button>
                 </div>
               </CardContent>
@@ -169,10 +169,10 @@ const CommunityHub = () => {
               {/* Filter Bar */}
               <div className="flex flex-wrap gap-3">
                 <Button variant="default" size="sm">All Posts</Button>
-                <Button variant="outline" size="sm">🐛 Pest Alert</Button>
-                <Button variant="outline" size="sm">🦠 Disease Warning</Button>
-                <Button variant="outline" size="sm">🌧️ Weather Update</Button>
-                <Button variant="outline" size="sm">💡 Tips</Button>
+                <Button variant="outline" size="sm">Pest Alert</Button>
+                <Button variant="outline" size="sm">Disease Warning</Button>
+                <Button variant="outline" size="sm">Weather Update</Button>
+                <Button variant="outline" size="sm">Tips</Button>
               </div>
 
               {/* Posts Feed */}
@@ -256,22 +256,18 @@ const CommunityHub = () => {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
             <Card className="p-4 text-center hover:shadow-field transition-all duration-300 cursor-pointer">
-              <div className="text-2xl mb-2">🌾</div>
               <h4 className="font-medium text-sm">Rice Production</h4>
               <p className="text-xs text-muted-foreground">245 discussions</p>
             </Card>
             <Card className="p-4 text-center hover:shadow-field transition-all duration-300 cursor-pointer">
-              <div className="text-2xl mb-2">🐛</div>
               <h4 className="font-medium text-sm">Pest Control</h4>
               <p className="text-xs text-muted-foreground">132 discussions</p>
             </Card>
             <Card className="p-4 text-center hover:shadow-field transition-all duration-300 cursor-pointer">
-              <div className="text-2xl mb-2">💧</div>
               <h4 className="font-medium text-sm">Irrigation Techniques</h4>
               <p className="text-xs text-muted-foreground">89 discussions</p>
             </Card>
             <Card className="p-4 text-center hover:shadow-field transition-all duration-300 cursor-pointer">
-              <div className="text-2xl mb-2">💰</div>
               <h4 className="font-medium text-sm">Market Rates</h4>
               <p className="text-xs text-muted-foreground">156 discussions</p>
             </Card>

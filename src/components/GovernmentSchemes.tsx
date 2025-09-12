@@ -221,68 +221,6 @@ const GovernmentSchemes = () => {
           ))}
         </div>
 
-        {/* How to Apply Section */}
-        <div className="mt-16">
-          <Card className="max-w-4xl mx-auto shadow-field">
-            <CardHeader>
-              <CardTitle className="text-center">How to Apply for Government Schemes</CardTitle>
-              <CardDescription className="text-center">
-                Simple steps to get started with government schemes and subsidies
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-3">
-                    <span className="text-white font-bold">1</span>
-                  </div>
-                  <h4 className="font-medium mb-2">Check Eligibility</h4>
-                  <p className="text-sm text-muted-foreground">Verify if you meet the scheme requirements</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-3">
-                    <span className="text-white font-bold">2</span>
-                  </div>
-                  <h4 className="font-medium mb-2">Gather Documents</h4>
-                  <p className="text-sm text-muted-foreground">Collect all required documents and certificates</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-3">
-                    <span className="text-white font-bold">3</span>
-                  </div>
-                  <h4 className="font-medium mb-2">Submit Application</h4>
-                  <p className="text-sm text-muted-foreground">Fill the form online or visit local office</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-success rounded-full flex items-center justify-center mx-auto mb-3">
-                    <CheckCircle className="h-6 w-6 text-white" />
-                  </div>
-                  <h4 className="font-medium mb-2">Track Status</h4>
-                  <p className="text-sm text-muted-foreground">Monitor your application and receive benefits</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Help Section */}
-        <div className="mt-12 text-center">
-          <Card className="max-w-2xl mx-auto p-8">
-            <h3 className="text-xl font-bold text-foreground mb-4">Need Help with Applications?</h3>
-            <p className="text-muted-foreground mb-6">
-              Our experts can help you apply for the right schemes and maximize your benefits
-            </p>
-            <div className="flex gap-4 justify-center">
-              <Button variant="default">
-                Contact Expert
-              </Button>
-              <Button variant="outline">
-                <FileText className="h-4 w-4 mr-2" />
-                Download Guide
-              </Button>
-            </div>
-          </Card>
-        </div>
       </div>
     </section>
   );

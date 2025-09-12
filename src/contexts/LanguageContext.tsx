@@ -24,7 +24,7 @@ const translations = {
   'hero.cta.demo': { hi: '▶ डेमो देखें', en: '▶ Watch Demo' },
   
   // Feature Cards
-  'feature.ai.title': { hi: 'AI फसल सलाहकार', en: 'AI Crop Advisor' },
+  'feature.ai.title': { hi: 'फसल सलाहकार', en: 'Crop Advisor' },
   'feature.ai.desc': { hi: 'बेहतर फसल और उत्पादन की भविष्यवाणी', en: 'Better crop and yield predictions' },
   'feature.profit.title': { hi: 'लाभ कैलकुलेटर', en: 'Profit Calculator' },
   'feature.profit.desc': { hi: 'वास्तविक समय मूल्य के साथ लाभ अनुमान', en: 'Profit estimation with real-time prices' },
@@ -34,7 +34,7 @@ const translations = {
   'feature.schemes.desc': { hi: 'सब्सिडी और अनुदान अलर्ट', en: 'Subsidy and grant alerts' },
   
   // Crop Advisor
-  'advisor.title': { hi: 'AI फसल सलाहकार', en: 'AI Crop Advisor' },
+  'advisor.title': { hi: 'फसल सलाहकार', en: 'Crop Advisor' },
   'advisor.subtitle': { hi: 'स्मार्ट खेती के लिए व्यक्तिगत सुझाव', en: 'Personalized recommendations for smart farming' },
   'advisor.location': { hi: 'स्थान', en: 'Location' },
   'advisor.location.placeholder': { hi: 'अपना जिला दर्ज करें', en: 'Enter your district' },

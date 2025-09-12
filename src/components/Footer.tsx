@@ -16,9 +16,9 @@ const Footer = () => {
   ];
 
   const govSchemes = [
-    { name: "Scheme 1", href: "#schemes" },
-    { name: "Scheme 2", href: "#schemes" },
-    { name: "Scheme 3", href: "#schemes" },
+    { name: "PM-KISAN Samman Nidhi", href: "#schemes" },
+    { name: "Pradhan Mantri Fasal Bima Yojana", href: "#schemes" },
+    { name: "Kisan Credit Card (KCC)", href: "#schemes" },
   ];
 
   const supportLinks = [
@@ -40,7 +40,7 @@ const Footer = () => {
                 <button
                   type="button"
                   onClick={() => scrollToSection(link.href.replace("#", ""))}
-                  className="text-left w-full text-primary-foreground/80 hover:text-primary-foreground transition-colors duration-200"
+                  className="text-left w-full text-foreground/80 hover:text-primary hover:font-medium transition-colors duration-200"
                 >
                   {link.name}
                 </button>
@@ -58,7 +58,7 @@ const Footer = () => {
                 <button
                   type="button"
                   onClick={() => scrollToSection(scheme.href.replace("#", ""))}
-                  className="text-left w-full text-primary-foreground/80 hover:text-primary-foreground transition-colors duration-200"
+                  className="text-left w-full text-foreground/80 hover:text-primary hover:font-medium transition-colors duration-200"
                 >
                   {scheme.name}
                 </button>
@@ -76,7 +76,7 @@ const Footer = () => {
                 <button
                   type="button"
                   onClick={() => scrollToSection(link.href.replace("#", ""))}
-                  className="text-left w-full text-primary-foreground/80 hover:text-primary-foreground transition-colors duration-200"
+                  className="text-left w-full text-foreground/80 hover:text-primary hover:font-medium transition-colors duration-200"
                 >
                   {link.name}
                 </button>

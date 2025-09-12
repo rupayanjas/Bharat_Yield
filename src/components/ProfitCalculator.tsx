@@ -285,7 +285,7 @@ const ProfitCalculator = () => {
                   }`}>
                     <div className="text-center">
                       <h3 className="text-lg font-medium mb-2">
-                        {calculation.netProfit > 0 ? '🎉 Net Profit' : '⚠️ Loss'}
+                        {calculation.netProfit > 0 ? 'Net Profit' : 'Loss'}
                       </h3>
                       <div className={`text-4xl font-bold ${
                         calculation.netProfit > 0 ? 'text-success' : 'text-destructive'
@@ -341,7 +341,7 @@ const ProfitCalculator = () => {
 
                   {/* Recommendations */}
                   <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
-                    <h4 className="font-medium text-primary mb-2">💡 Recommendations</h4>
+                    <h4 className="font-medium text-primary mb-2">Recommendations</h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       {calculation.profitMargin < 20 && (
                         <li>• Use better seeds and techniques to increase yield</li>
