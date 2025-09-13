@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 
 const LoginPage = () => {
   const { login, register } = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [activeTab, setActiveTab] = useState('login');
 
   // Login form state
   const [loginData, setLoginData] = useState({
@@ -53,6 +55,9 @@ const LoginPage = () => {
     
     if (!success) {
       setError('Invalid email or password');
+    } else {
+      // Redirect to home page after successful login
+      navigate('/');
     }
     
     setIsLoading(false);
@@ -103,7 +108,12 @@ const LoginPage = () => {
     if (!success) {
       setError('User with this email already exists');
     } else {
-      setSuccess('Registration successful! You are now logged in.');
+      setSuccess('Registration successful! Switching to login...');
+      // Switch to login tab after successful registration
+      setTimeout(() => {
+        setActiveTab('login');
+        setSuccess('');
+      }, 1500);
     }
 
     setIsLoading(false);
@@ -131,7 +141,7 @@ const LoginPage = () => {
           <p className="text-gray-600">Smart Farming's Digital Future</p>
         </div>
 
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="register">Register</TabsTrigger>
@@ -272,17 +282,15 @@ const LoginPage = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="farm-size">Farm Size *</Label>
-                      <Select onValueChange={(value) => setRegisterData(prev => ({ ...prev, farmSize: value }))}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select farm size" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="small">Small (&lt; 2 acres)</SelectItem>
-                          <SelectItem value="medium">Medium (2-10 acres)</SelectItem>
-                          <SelectItem value="large">Large (&gt; 10 acres)</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Label htmlFor="farm-size">Farm Size (acres) *</Label>
+                      <Input
+                        id="farm-size"
+                        type="number"
+                        placeholder="Enter farm size in acres"
+                        value={registerData.farmSize}
+                        onChange={(e) => setRegisterData(prev => ({ ...prev, farmSize: e.target.value }))}
+                        required
+                      />
                     </div>
                   </div>
 

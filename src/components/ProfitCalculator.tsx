@@ -1,19 +1,12 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  IndianRupee, 
-  Calculator, 
-  TrendingUp, 
-  TrendingDown,
-  DollarSign,
-  BarChart3,
-  Coins,
-  Target
-} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthContext";
+import { Calculator, TrendingUp, TrendingDown, BarChart3, IndianRupee } from "lucide-react";
 
 interface ProfitCalculation {
   crop: string;
@@ -26,18 +19,29 @@ interface ProfitCalculation {
 }
 
 const ProfitCalculator = () => {
-  const [calculation, setCalculation] = useState<ProfitCalculation | null>(null);
+  const { user, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     crop: "",
     landSize: "",
     expectedYield: "",
-    marketPrice: "",
+    sellingPrice: "",
     seedCost: "",
     fertilizerCost: "",
     laborCost: "",
     irrigationCost: "",
-    otherCosts: "",
+    otherCosts: ""
   });
+  const [calculation, setCalculation] = useState<ProfitCalculation | null>(null);
+
+  // Auto-fill farm size from user profile
+  useEffect(() => {
+    if (isAuthenticated && user?.farmSize) {
+      setFormData(prev => ({
+        ...prev,
+        landSize: user.farmSize
+      }));
+    }
+  }, [isAuthenticated, user]);
 
   const cropPrices = {
     rice: { name: "Rice", price: 2100, unit: "per quintal" },
@@ -136,7 +140,7 @@ const ProfitCalculator = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Land Area (Hectares)</Label>
+                  <Label>Farm Size (Acres)</Label>
                   <Input
                     type="number"
                     placeholder="2.5"
@@ -145,7 +149,7 @@ const ProfitCalculator = () => {
                   />
                 </div>
                 <div>
-                  <Label>Expected Yield (Quintal/Hectare)</Label>
+                  <Label>Expected Yield (Quintal/Acre)</Label>
                   <Input
                     type="number"
                     placeholder="40"
@@ -175,7 +179,7 @@ const ProfitCalculator = () => {
 
               {/* Cost Breakdown */}
               <div className="space-y-4">
-                <h4 className="font-medium text-foreground">Cost Breakdown (₹ per hectare)</h4>
+                <h4 className="font-medium text-foreground">Cost Breakdown (₹ per acre)</h4>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -293,7 +297,7 @@ const ProfitCalculator = () => {
                         {formatCurrency(Math.abs(calculation.netProfit))}
                       </div>
                       <p className="text-sm text-muted-foreground mt-2">
-                        Per hectare {calculation.netProfit > 0 ? 'profit' : 'loss'}
+                        Per acre {calculation.netProfit > 0 ? 'profit' : 'loss'}
                       </p>
                     </div>
                   </div>
@@ -333,7 +337,7 @@ const ProfitCalculator = () => {
                           <span className="font-medium">Break-even Yield</span>
                         </div>
                         <span className="font-bold text-sky">
-                          {calculation.breakEvenYield.toFixed(1)} quintal/hectare
+                          {calculation.breakEvenYield.toFixed(1)} quintal/acre
                         </span>
                       </div>
                     </div>

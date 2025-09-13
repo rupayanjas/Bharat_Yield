@@ -1,5 +1,9 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   Cloud, 
   Sun, 
@@ -9,13 +13,50 @@ import {
   Wind, 
   Eye,
   Umbrella,
-  AlertTriangle
+  AlertTriangle,
+  MapPin
 } from "lucide-react";
 
 const WeatherDashboard = () => {
+  const { user, isAuthenticated } = useAuth();
+  const [selectedLocation, setSelectedLocation] = useState("");
+
+  // Indian cities for location dropdown
+  const indianCities = [
+    "Chennai, Tamil Nadu",
+    "Mumbai, Maharashtra", 
+    "Delhi, Delhi",
+    "Bangalore, Karnataka",
+    "Kolkata, West Bengal",
+    "Hyderabad, Telangana",
+    "Pune, Maharashtra",
+    "Ahmedabad, Gujarat",
+    "Jaipur, Rajasthan",
+    "Surat, Gujarat",
+    "Lucknow, Uttar Pradesh",
+    "Kanpur, Uttar Pradesh",
+    "Nagpur, Maharashtra",
+    "Patna, Bihar",
+    "Indore, Madhya Pradesh",
+    "Bhopal, Madhya Pradesh",
+    "Ludhiana, Punjab",
+    "Agra, Uttar Pradesh",
+    "Vadodara, Gujarat",
+    "Coimbatore, Tamil Nadu"
+  ];
+
+  // Auto-fill user location if logged in
+  useEffect(() => {
+    if (isAuthenticated && user?.location) {
+      setSelectedLocation(user.location);
+    } else {
+      setSelectedLocation("Chennai, Tamil Nadu");
+    }
+  }, [isAuthenticated, user]);
+
   // Mock weather data - in real app, this would come from weather APIs
   const currentWeather = {
-    location: "Patna, Bihar",
+    location: selectedLocation || "Chennai, Tamil Nadu",
     temperature: "28°C",
     condition: "partly-cloudy",
     conditionText: "Partly Cloudy",
@@ -82,6 +123,31 @@ const WeatherDashboard = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Real-time weather data and agricultural advice
           </p>
+          
+          {/* Location Selector */}
+          <div className="max-w-md mx-auto mt-8">
+            <Label htmlFor="location-select" className="flex items-center justify-center gap-2 mb-2">
+              <MapPin className="h-4 w-4" />
+              Select Location
+            </Label>
+            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose your location" />
+              </SelectTrigger>
+              <SelectContent>
+                {indianCities.map((city) => (
+                  <SelectItem key={city} value={city}>
+                    {city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {isAuthenticated && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Auto-filled from your profile
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">

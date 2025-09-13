@@ -55,7 +55,7 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <div className="flex items-center space-x-3">
-                <span className="text-sm text-foreground">Welcome, {user?.name}</span>
+                <span className="text-sm text-foreground">Welcome, {user?.name.split(' ')[0]}</span>
                 <Button
                   variant="outline"
                   size="sm"
@@ -108,7 +108,7 @@ const Header = () => {
               <div className="px-3 pt-4">
                 {isAuthenticated ? (
                   <div className="space-y-2">
-                    <div className="text-sm text-foreground mb-2">Welcome, {user?.name}</div>
+                    <div className="text-sm text-foreground mb-2">Welcome, {user?.name.split(' ')[0]}</div>
                     <Button
                       variant="outline"
                       className="w-full"

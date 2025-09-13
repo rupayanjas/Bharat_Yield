@@ -3,13 +3,13 @@ export const createDemoUsers = () => {
   const demoUsers = [
     {
       id: "demo1",
-      name: "Raj Patel",
+      name: "Rupayan Jas",
       email: "farmer@test.com",
       password: "password123",
       phone: "+91 9876543210",
-      location: "Ahmedabad, Gujarat",
-      farmSize: "medium",
-      cropTypes: ["Rice", "Wheat", "Cotton"]
+      location: "Chennai, Tamil Nadu",
+      farmSize: "5",
+      cropTypes: ["Rice", "Wheat"]
     },
     {
       id: "demo2",
@@ -18,7 +18,7 @@ export const createDemoUsers = () => {
       password: "demo123",
       phone: "+91 8765432109",
       location: "Jaipur, Rajasthan",
-      farmSize: "small",
+      farmSize: "2",
       cropTypes: ["Vegetables", "Spices"]
     },
     {
@@ -28,7 +28,7 @@ export const createDemoUsers = () => {
       password: "test123",
       phone: "+91 7654321098",
       location: "Ludhiana, Punjab",
-      farmSize: "large",
+      farmSize: "15",
       cropTypes: ["Wheat", "Rice", "Sugarcane"]
     }
   ];

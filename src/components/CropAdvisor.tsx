@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   Sprout, 
   Upload, 
@@ -15,7 +17,9 @@ import {
   Thermometer,
   MapPin,
   Calendar,
-  IndianRupee
+  IndianRupee,
+  Lightbulb,
+  Loader2
 } from "lucide-react";
 
 interface CropRecommendation {
@@ -28,6 +32,7 @@ interface CropRecommendation {
 }
 
 const CropAdvisor = () => {
+  const { user, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     location: "",
     landSize: "",
@@ -35,6 +40,8 @@ const CropAdvisor = () => {
     season: "",
     budget: "",
     previousCrop: "",
+    irrigationAvailable: "",
+    soilHealthCard: null as File | null,
   });
 
   const [soilHealthData, setSoilHealthData] = useState({
@@ -48,9 +55,21 @@ const CropAdvisor = () => {
   const [recommendation, setRecommendation] = useState<CropRecommendation | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  // Auto-fill user data if logged in
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setFormData(prev => ({
+        ...prev,
+        location: user.location || "",
+        landSize: user.farmSize || ""
+      }));
+    }
+  }, [isAuthenticated, user]);
+
   const handleSoilCardUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setFormData(prev => ({...prev, soilHealthCard: file}));
       // Simulate OCR processing
       setTimeout(() => {
         setSoilHealthData({
@@ -72,8 +91,8 @@ const CropAdvisor = () => {
     setTimeout(() => {
       setRecommendation({
         crop: "Rice (Basmati)",
-        yield: "4.2 tons/hectare",
-        profit: "₹85,000 per hectare",
+        yield: "4.2 tons/acre",
+        profit: "₹85,000 per acre",
         irrigation: "SRI Method - 7 day interval",
         fertilizer: "NPK 120:60:40 kg/ha",
         confidence: 94,
@@ -123,7 +142,7 @@ const CropAdvisor = () => {
 
                 {/* Land Size */}
                 <div>
-                  <Label>Land Area (Hectares)</Label>
+                  <Label>Farm Size (Acres)</Label>
                   <Input
                     type="number"
                     placeholder="2.5"
@@ -154,7 +173,7 @@ const CropAdvisor = () => {
                 <div>
                   <Label className="flex items-center gap-2">
                     <IndianRupee className="h-4 w-4" />
-                    Budget (₹ per hectare)
+                    Budget (₹ per acre)
                   </Label>
                   <Input
                     type="number"
