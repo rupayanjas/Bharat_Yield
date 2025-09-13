@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
+import { cropOptions } from '@/utils/cropOptions';
 
 const LoginPage = () => {
   const { login, register } = useAuth();
@@ -34,11 +35,6 @@ const LoginPage = () => {
     farmSize: '',
     cropTypes: [] as string[]
   });
-
-  const cropOptions = [
-    'Rice', 'Wheat', 'Corn', 'Sugarcane', 'Cotton', 'Soybean', 
-    'Pulses', 'Vegetables', 'Fruits', 'Spices', 'Tea', 'Coffee'
-  ];
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

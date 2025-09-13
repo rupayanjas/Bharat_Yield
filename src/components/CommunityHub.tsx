@@ -124,10 +124,10 @@ const CommunityHub = () => {
                   rows={4}
                 />
                 <div className="flex gap-2">
-                  <Button variant="default" onClick={handlePostSubmit} className="flex-1">
+                  <Button variant="default" onClick={handlePostSubmit} className="flex-grow">
                     Post
                   </Button>
-                  <Button variant="outline" size="icon">
+                  <Button variant="outline" className="px-4">
                     Attach
                   </Button>
                 </div>

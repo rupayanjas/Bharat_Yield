@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { profitCalculatorCrops } from "@/utils/cropOptions";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import { Calculator, TrendingUp, TrendingDown, BarChart3, IndianRupee } from "lucide-react";
+import { Calculator, TrendingUp, TrendingDown, BarChart3, IndianRupee, Target, Coins } from "lucide-react";
 
 interface ProfitCalculation {
   crop: string;
@@ -25,6 +26,7 @@ const ProfitCalculator = () => {
     landSize: "",
     expectedYield: "",
     sellingPrice: "",
+    marketPrice: "",
     seedCost: "",
     fertilizerCost: "",
     laborCost: "",
@@ -130,10 +132,11 @@ const ProfitCalculator = () => {
                     <SelectValue placeholder="Choose a crop" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="rice">Rice</SelectItem>
-                    <SelectItem value="wheat">Wheat</SelectItem>
-                    <SelectItem value="sugarcane">Sugarcane</SelectItem>
-                    <SelectItem value="maize">Maize</SelectItem>
+                    {profitCalculatorCrops.map((crop) => (
+                      <SelectItem key={crop.value} value={crop.value}>
+                        {crop.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
