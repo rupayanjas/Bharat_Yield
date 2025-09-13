@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react";
 import bharatYieldLogo from "/lovable-uploads/16ad09f2-1a72-4fb4-b874-0ba14d1779d3.png";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { scrollToSection } from "@/utils/scrollToSection";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { language, toggleLanguage, t } = useLanguage();
+  const { user, logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const navItems = [
     { key: "Home", id: "home" },
@@ -49,16 +53,31 @@ const Header = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() =>
-                alert("Login functionality will be implemented with an authentication system")
-              }
-            >
-              <User className="h-4 w-4 mr-2" />
-              Login
-            </Button>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <span className="text-sm text-foreground">Welcome, {user?.name}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    logout();
+                    navigate('/');
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate('/login')}
+              >
+                <User className="h-4 w-4 mr-2" />
+                Login
+              </Button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -87,16 +106,35 @@ const Header = () => {
                 </button>
               ))}
               <div className="px-3 pt-4">
-                <Button
-                  variant="default"
-                  className="w-full"
-                  onClick={() =>
-                    alert("Login functionality will be implemented with an authentication system")
-                  }
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Login
-                </Button>
+                {isAuthenticated ? (
+                  <div className="space-y-2">
+                    <div className="text-sm text-foreground mb-2">Welcome, {user?.name}</div>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        logout();
+                        navigate('/');
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="default"
+                    className="w-full"
+                    onClick={() => {
+                      navigate('/login');
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Login
+                  </Button>
+                )}
               </div>
             </nav>
           </div>
