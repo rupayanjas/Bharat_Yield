@@ -119,6 +119,15 @@ export const getComprehensiveAnalysis = async (
   }
 ): Promise<ComprehensiveAnalysis> => {
   try {
+    // Check if API key is available
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    console.log('API Key available:', !!apiKey);
+    console.log('API Key length:', apiKey?.length || 0);
+    
+    if (!apiKey) {
+      throw new Error('Gemini API key not found');
+    }
+    
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `You are an expert agricultural consultant analyzing a complete farm profile for crop recommendations.
@@ -171,9 +180,12 @@ Guidelines:
 5. Consider Indian agricultural practices and local conditions
 6. Return ONLY valid JSON, no additional text`;
 
+    console.log('Making API call to Gemini...');
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
+    
+    console.log('Gemini API response received:', text.substring(0, 200) + '...');
 
     // Clean up the response to ensure it's valid JSON
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -181,10 +193,16 @@ Guidelines:
 
     // Parse the JSON response
     const analysis = JSON.parse(jsonText) as ComprehensiveAnalysis;
+    console.log('Successfully parsed AI analysis:', analysis.cropRecommendation.crop);
     return analysis;
 
   } catch (error) {
     console.error('Error calling Gemini for comprehensive analysis:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     
     // Fallback analysis
     return {
