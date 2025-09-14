@@ -1,26 +1,32 @@
 import { useState, useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
+import { ComprehensiveAnalysis, getComprehensiveAnalysis } from "@/utils/llmService";
+import { generateCropRecommendationReport } from "@/utils/reportGenerator";
 import { 
   Sprout, 
   Upload, 
   Brain, 
   TrendingUp, 
   Droplets, 
-  Thermometer,
   MapPin,
   Calendar,
   IndianRupee,
-  Lightbulb,
-  Loader2
+  Loader2,
+  Download,
+  FileText,
 } from "lucide-react";
+import * as pdfjsLib from "pdfjs-dist";
+
+// Configure PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.mjs`;
 
 interface CropRecommendation {
   crop: string;
@@ -54,6 +60,12 @@ const CropAdvisor = () => {
 
   const [recommendation, setRecommendation] = useState<CropRecommendation | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  // PDF processing states
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [extractedText, setExtractedText] = useState<string>("");
+  const [comprehensiveAnalysis, setComprehensiveAnalysis] = useState<ComprehensiveAnalysis | null>(null);
+  const [isProcessingPdf, setIsProcessingPdf] = useState(false);
 
   // Auto-fill user data if logged in
   useEffect(() => {
@@ -66,39 +78,106 @@ const CropAdvisor = () => {
     }
   }, [isAuthenticated, user]);
 
-  const handleSoilCardUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const extractTextFromPDF = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const arrayBuffer = reader.result as ArrayBuffer;
+          const uint8Array = new Uint8Array(arrayBuffer);
+          
+          // Load the PDF document
+          const pdf = await pdfjsLib.getDocument({ data: uint8Array }).promise;
+          let fullText = '';
+          
+          // Extract text from each page
+          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items
+              .map((item) => {
+                if ('str' in item) {
+                  return (item as { str: string }).str;
+                }
+                return '';
+              })
+              .join(' ');
+            fullText += pageText + '\n';
+          }
+          
+          resolve(fullText.trim());
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+
+  const handleSoilCardUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setFormData(prev => ({...prev, soilHealthCard: file}));
-      // Simulate OCR processing
-      setTimeout(() => {
-        setSoilHealthData({
-          pH: "6.8",
-          nitrogen: "280",
-          phosphorus: "15",
-          potassium: "180",
-          organicCarbon: "0.65",
-        });
-      }, 2000);
+      if (file.type !== 'application/pdf') {
+        alert('Please upload only PDF files.');
+        return;
+      }
+      
+      setUploadedFile(file);
+      setIsProcessingPdf(true);
+      
+      try {
+        // Extract text from PDF
+        const text = await extractTextFromPDF(file);
+        setExtractedText(text);
+        
+        // Text extracted successfully, will be used in comprehensive analysis
+        
+      } catch (error) {
+        console.error('Error processing PDF:', error);
+        alert('Error processing PDF. Please try again.');
+      } finally {
+        setIsProcessingPdf(false);
+      }
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsAnalyzing(true);
     
-    // Simulate AI processing
-    setTimeout(() => {
+    try {
+      // Get comprehensive analysis with all data
+      const analysis = await getComprehensiveAnalysis(formData, extractedText, soilHealthData);
+      setComprehensiveAnalysis(analysis);
+      
+      // Set recommendation for backward compatibility
+      setRecommendation(analysis.cropRecommendation);
+      
+      // Update soil health data with analysis results
+      setSoilHealthData({
+        pH: analysis.soilHealth.pH !== "N/A" ? analysis.soilHealth.pH : soilHealthData.pH,
+        nitrogen: analysis.soilHealth.nitrogen !== "N/A" ? analysis.soilHealth.nitrogen : soilHealthData.nitrogen,
+        phosphorus: analysis.soilHealth.phosphorus !== "N/A" ? analysis.soilHealth.phosphorus : soilHealthData.phosphorus,
+        potassium: analysis.soilHealth.potassium !== "N/A" ? analysis.soilHealth.potassium : soilHealthData.potassium,
+        organicCarbon: analysis.soilHealth.organicCarbon !== "N/A" ? analysis.soilHealth.organicCarbon : soilHealthData.organicCarbon,
+      });
+      
+    } catch (error) {
+      console.error('Error getting comprehensive analysis:', error);
+      // Fallback to basic recommendation
       setRecommendation({
         crop: "Rice (Basmati)",
         yield: "4.2 tons/acre",
         profit: "₹85,000 per acre",
         irrigation: "SRI Method - 7 day interval",
         fertilizer: "NPK 120:60:40 kg/ha",
-        confidence: 94,
+        confidence: 75,
       });
+    } finally {
       setIsAnalyzing(false);
-    }, 3000);
+    }
   };
 
   return (
@@ -191,13 +270,39 @@ const CropAdvisor = () => {
                   </Label>
                   <Input
                     type="file"
-                    accept="image/*"
+                    accept=".pdf,application/pdf"
                     onChange={handleSoilCardUpload}
                     className="cursor-pointer"
+                    disabled={isProcessingPdf}
                   />
                   <p className="text-sm text-muted-foreground mt-1">
-                    Or enter data manually
+                    Upload PDF soil health card or enter data manually
                   </p>
+                  
+                  {/* Processing Status */}
+                  {isProcessingPdf && (
+                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                        <span className="text-sm text-blue-700">
+                          Extracting text from PDF...
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Uploaded File Info */}
+                  {uploadedFile && (
+                    <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-green-600" />
+                        <span className="text-sm text-green-700">
+                          {uploadedFile.name} uploaded successfully
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
                 </div>
 
                 {/* Manual Soil Data */}
@@ -271,20 +376,20 @@ const CropAdvisor = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {recommendation ? (
+              {comprehensiveAnalysis ? (
                 <div className="space-y-6">
                   {/* Confidence Score */}
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Confidence Score</span>
                     <Badge variant="default" className="bg-success">
-                      {recommendation.confidence}% Accurate
+                      {comprehensiveAnalysis.cropRecommendation.confidence}% Accurate
                     </Badge>
                   </div>
 
                   {/* Recommended Crop */}
                   <div className="p-4 bg-gradient-to-r from-success/10 to-primary/10 rounded-lg border border-success/20">
                     <h3 className="text-xl font-bold text-success mb-2">
-                      Recommended Crop: {recommendation.crop}
+                      Recommended Crop: {comprehensiveAnalysis.cropRecommendation.crop}
                     </h3>
                     <p className="text-muted-foreground">Best choice for your field conditions</p>
                   </div>
@@ -296,7 +401,7 @@ const CropAdvisor = () => {
                         <TrendingUp className="h-5 w-5 text-success" />
                         <span className="font-medium">Expected Yield</span>
                       </div>
-                      <span className="text-success font-bold">{recommendation.yield}</span>
+                      <span className="text-success font-bold">{comprehensiveAnalysis.cropRecommendation.yield}</span>
                     </div>
 
                     <div className="flex items-center justify-between p-3 bg-earth rounded-lg">
@@ -304,7 +409,7 @@ const CropAdvisor = () => {
                         <IndianRupee className="h-5 w-5 text-saffron" />
                         <span className="font-medium">Estimated Profit</span>
                       </div>
-                      <span className="text-saffron font-bold">{recommendation.profit}</span>
+                      <span className="text-saffron font-bold">{comprehensiveAnalysis.cropRecommendation.profit}</span>
                     </div>
 
                     <div className="flex items-center justify-between p-3 bg-earth rounded-lg">
@@ -312,7 +417,7 @@ const CropAdvisor = () => {
                         <Droplets className="h-5 w-5 text-sky" />
                         <span className="font-medium">Irrigation Plan</span>
                       </div>
-                      <span className="text-sky font-bold text-sm">{recommendation.irrigation}</span>
+                      <span className="text-sky font-bold text-sm">{comprehensiveAnalysis.cropRecommendation.irrigation}</span>
                     </div>
 
                     <div className="flex items-center justify-between p-3 bg-earth rounded-lg">
@@ -320,12 +425,61 @@ const CropAdvisor = () => {
                         <Sprout className="h-5 w-5 text-primary" />
                         <span className="font-medium">Fertilizer Recommendation</span>
                       </div>
-                      <span className="text-primary font-bold text-sm">{recommendation.fertilizer}</span>
+                      <span className="text-primary font-bold text-sm">{comprehensiveAnalysis.cropRecommendation.fertilizer}</span>
                     </div>
                   </div>
 
+                  {/* AI Analysis Summary */}
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h4 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
+                      <Brain className="h-4 w-4" />
+                      AI Analysis Summary
+                    </h4>
+                    <div className="text-sm text-blue-800 mb-3">
+                      {comprehensiveAnalysis.soilHealth.summary}
+                    </div>
+                    <div className="text-sm text-blue-800">
+                      <strong>Detailed Analysis:</strong> {comprehensiveAnalysis.detailedAnalysis}
+                    </div>
+                  </div>
+
+                  {/* Soil Health Recommendations */}
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h4 className="font-medium text-green-900 mb-2">Soil Health Recommendations:</h4>
+                    <ul className="text-sm text-green-800 space-y-1">
+                      {comprehensiveAnalysis.soilHealth.recommendations.map((rec, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-green-600 mt-1">•</span>
+                          <span>{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Implementation Plan */}
+                  <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                    <h4 className="font-medium text-purple-900 mb-2">Implementation Plan:</h4>
+                    <ol className="text-sm text-purple-800 space-y-1">
+                      {comprehensiveAnalysis.implementationPlan.map((step, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-purple-600 mt-1 font-medium">{index + 1}.</span>
+                          <span>{step}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+
                   <div className="flex gap-3">
-                    <Button variant="saffron" className="flex-1">
+                    <Button 
+                      variant="saffron" 
+                      className="flex-1"
+                      onClick={() => {
+                        if (comprehensiveAnalysis) {
+                          generateCropRecommendationReport(comprehensiveAnalysis, formData);
+                        }
+                      }}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
                       Download Full Report
                     </Button>
                     <Button variant="outline" className="flex-1">

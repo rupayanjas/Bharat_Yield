@@ -7,7 +7,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { profitCalculatorCrops } from "@/utils/cropOptions";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import { Calculator, TrendingUp, TrendingDown, BarChart3, IndianRupee, Target, Coins } from "lucide-react";
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import {
+  BarChart3,
+  Brain,
+  Calculator,
+  Coins,
+  IndianRupee,
+  Loader2,
+  Target,
+  TrendingDown,
+  TrendingUp
+} from "lucide-react";
 
 interface ProfitCalculation {
   crop: string;
@@ -19,8 +30,22 @@ interface ProfitCalculation {
   breakEvenYield: number;
 }
 
+interface AIProfitAnalysis {
+  marketInsights: string;
+  costOptimization: string[];
+  profitMaximization: string[];
+  riskAssessment: string;
+  recommendations: string[];
+  marketTrends: string;
+}
+
+// Initialize Gemini client
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+
 const ProfitCalculator = () => {
   const { user, isAuthenticated } = useAuth();
+  const [aiAnalysis, setAiAnalysis] = useState<AIProfitAnalysis | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [formData, setFormData] = useState({
     crop: "",
     landSize: "",
@@ -45,22 +70,8 @@ const ProfitCalculator = () => {
     }
   }, [isAuthenticated, user]);
 
-  const cropPrices = {
-    rice: { name: "Rice", price: 2100, unit: "per quintal" },
-    wheat: { name: "Wheat", price: 2050, unit: "per quintal" },
-    sugarcane: { name: "Sugarcane", price: 350, unit: "per quintal" },
-    maize: { name: "Maize", price: 1850, unit: "per quintal" },
-  };
 
-  const handleCropChange = (crop: string) => {
-    setFormData({
-      ...formData,
-      crop,
-      marketPrice: cropPrices[crop as keyof typeof cropPrices]?.price.toString() || "",
-    });
-  };
-
-  const calculateProfit = () => {
+  const calculateProfit = async () => {
     const landSize = parseFloat(formData.landSize);
     const expectedYield = parseFloat(formData.expectedYield);
     const marketPrice = parseFloat(formData.marketPrice);
@@ -80,7 +91,7 @@ const ProfitCalculator = () => {
     const roiPercentage = (netProfit / totalCost) * 100;
     const breakEvenYield = totalCost / (marketPrice * landSize);
 
-    setCalculation({
+    const profitData = {
       crop: formData.crop,
       totalRevenue,
       totalCost,
@@ -88,7 +99,104 @@ const ProfitCalculator = () => {
       profitMargin,
       roiPercentage,
       breakEvenYield,
-    });
+    };
+
+    setCalculation(profitData);
+
+    // Get AI analysis
+    setIsAnalyzing(true);
+    try {
+      const analysis = await getAIProfitAnalysis(profitData);
+      setAiAnalysis(analysis);
+    } catch (error) {
+      console.error('Error getting AI analysis:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const getAIProfitAnalysis = async (profitData: ProfitCalculation): Promise<AIProfitAnalysis> => {
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+      const prompt = `You are an expert agricultural economist and financial advisor analyzing crop profit data for Indian farmers.
+
+PROFIT CALCULATION DATA:
+- Crop: ${profitData.crop}
+- Total Revenue: ₹${profitData.totalRevenue.toLocaleString()}
+- Total Cost: ₹${profitData.totalCost.toLocaleString()}
+- Net Profit: ₹${profitData.netProfit.toLocaleString()}
+- Profit Margin: ${profitData.profitMargin.toFixed(1)}%
+- ROI: ${profitData.roiPercentage.toFixed(1)}%
+- Break-even Yield: ${profitData.breakEvenYield.toFixed(1)} quintal/hectare
+
+FARM DETAILS:
+- Land Size: ${formData.landSize} hectares
+- Expected Yield: ${formData.expectedYield} quintal/hectare
+- Market Price: ₹${formData.marketPrice} per quintal
+
+COST BREAKDOWN:
+- Seed Cost: ₹${formData.seedCost} per hectare
+- Fertilizer Cost: ₹${formData.fertilizerCost} per hectare
+- Labor Cost: ₹${formData.laborCost} per hectare
+- Irrigation Cost: ₹${formData.irrigationCost} per hectare
+- Other Costs: ₹${formData.otherCosts} per hectare
+
+Please provide a comprehensive analysis in the following JSON format:
+{
+  "marketInsights": "2-3 sentence analysis of current market conditions and pricing for this crop",
+  "costOptimization": ["specific cost reduction strategy 1", "specific cost reduction strategy 2", "specific cost reduction strategy 3"],
+  "profitMaximization": ["yield improvement strategy 1", "yield improvement strategy 2", "yield improvement strategy 3"],
+  "riskAssessment": "Analysis of potential risks and challenges for this crop",
+  "recommendations": ["actionable recommendation 1", "actionable recommendation 2", "actionable recommendation 3"],
+  "marketTrends": "Brief analysis of market trends and future outlook"
+}
+
+Guidelines:
+1. Focus on Indian agricultural context and conditions
+2. Provide specific, actionable advice
+3. Consider government schemes and subsidies
+4. Include sustainable farming practices
+5. Address seasonal and regional factors
+6. Return ONLY valid JSON, no additional text`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+
+      // Clean up the response to ensure it's valid JSON
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      const jsonText = jsonMatch ? jsonMatch[0] : text;
+
+      // Parse the JSON response
+      const analysis = JSON.parse(jsonText) as AIProfitAnalysis;
+      return analysis;
+
+    } catch (error) {
+      console.error('Error getting AI profit analysis:', error);
+      
+      // Fallback analysis
+      return {
+        marketInsights: "Market analysis unavailable. Please consult local agricultural experts for current market conditions.",
+        costOptimization: [
+          "Consider bulk purchasing of inputs to reduce costs",
+          "Explore government subsidy schemes for seeds and fertilizers",
+          "Implement precision farming techniques to optimize resource use"
+        ],
+        profitMaximization: [
+          "Use high-yield variety seeds",
+          "Implement proper irrigation management",
+          "Follow integrated pest management practices"
+        ],
+        riskAssessment: "Consider crop insurance and diversify your farming portfolio to manage risks effectively.",
+        recommendations: [
+          "Monitor market prices regularly",
+          "Keep detailed cost records for better analysis",
+          "Consult with local agriculture extension officers"
+        ],
+        marketTrends: "Market trends analysis unavailable. Please check local mandi rates and agricultural news."
+      };
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -126,19 +234,13 @@ const ProfitCalculator = () => {
             <CardContent className="space-y-6">
               {/* Crop Selection */}
               <div>
-                <Label>Select Crop</Label>
-                <Select value={formData.crop} onValueChange={handleCropChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a crop" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {profitCalculatorCrops.map((crop) => (
-                      <SelectItem key={crop.value} value={crop.value}>
-                        {crop.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Crop Name</Label>
+                <Input
+                  type="text"
+                  placeholder="Enter crop name (e.g., Rice, Wheat, Sugarcane)"
+                  value={formData.crop}
+                  onChange={(e) => setFormData({...formData, crop: e.target.value})}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -173,11 +275,6 @@ const ProfitCalculator = () => {
                   value={formData.marketPrice}
                   onChange={(e) => setFormData({...formData, marketPrice: e.target.value})}
                 />
-                {formData.crop && cropPrices[formData.crop as keyof typeof cropPrices] && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Current market rate: ₹{cropPrices[formData.crop as keyof typeof cropPrices].price} per quintal
-                  </p>
-                )}
               </div>
 
               {/* Cost Breakdown */}
@@ -239,10 +336,19 @@ const ProfitCalculator = () => {
                 variant="saffron"
                 size="lg"
                 className="w-full"
-                disabled={!formData.crop || !formData.landSize || !formData.expectedYield || !formData.marketPrice}
+                disabled={!formData.crop || !formData.landSize || !formData.expectedYield || !formData.marketPrice || isAnalyzing}
               >
-                <Calculator className="h-5 w-5 mr-2" />
-                Calculate Profit
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    AI Analysis in Progress...
+                  </>
+                ) : (
+                  <>
+                    <Calculator className="h-5 w-5 mr-2" />
+                    Calculate Profit with AI Analysis
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -346,9 +452,9 @@ const ProfitCalculator = () => {
                     </div>
                   </div>
 
-                  {/* Recommendations */}
+                  {/* Static Recommendations - Always Show */}
                   <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
-                    <h4 className="font-medium text-primary mb-2">Recommendations</h4>
+                    <h4 className="font-medium text-primary mb-2">Static Analysis Recommendations</h4>
                     <ul className="text-sm text-muted-foreground space-y-1">
                       {calculation.profitMargin < 20 && (
                         <li>• Use better seeds and techniques to increase yield</li>
@@ -356,10 +462,100 @@ const ProfitCalculator = () => {
                       {calculation.roiPercentage < 30 && (
                         <li>• Utilize government schemes to reduce costs</li>
                       )}
+                      {calculation.profitMargin > 30 && (
+                        <li>• Excellent profit margin! Consider expanding production</li>
+                      )}
+                      {calculation.roiPercentage > 50 && (
+                        <li>• Strong ROI! This crop is financially viable</li>
+                      )}
                       <li>• Monitor market prices regularly</li>
                       <li>• Don't forget to get crop insurance</li>
+                      <li>• Keep detailed cost records for future analysis</li>
                     </ul>
                   </div>
+
+                  {/* AI Analysis */}
+                  {aiAnalysis && (
+                    <div className="space-y-4">
+                      {/* Market Insights */}
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
+                          <Brain className="h-4 w-4" />
+                          AI Market Insights
+                        </h4>
+                        <div className="text-sm text-blue-800">
+                          {aiAnalysis.marketInsights}
+                        </div>
+                      </div>
+
+                      {/* Cost Optimization */}
+                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <h4 className="font-medium text-green-900 mb-2">AI Cost Optimization Strategies</h4>
+                        <ul className="text-sm text-green-800 space-y-1">
+                          {aiAnalysis.costOptimization.map((strategy, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="text-green-600 mt-1">•</span>
+                              <span>{strategy}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Profit Maximization */}
+                      <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                        <h4 className="font-medium text-purple-900 mb-2">AI Profit Maximization Strategies</h4>
+                        <ul className="text-sm text-purple-800 space-y-1">
+                          {aiAnalysis.profitMaximization.map((strategy, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="text-purple-600 mt-1">•</span>
+                              <span>{strategy}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Risk Assessment */}
+                      <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                        <h4 className="font-medium text-orange-900 mb-2">AI Risk Assessment</h4>
+                        <div className="text-sm text-orange-800">
+                          {aiAnalysis.riskAssessment}
+                        </div>
+                      </div>
+
+                      {/* AI Recommendations */}
+                      <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+                        <h4 className="font-medium text-indigo-900 mb-2">AI Strategic Recommendations</h4>
+                        <ul className="text-sm text-indigo-800 space-y-1">
+                          {aiAnalysis.recommendations.map((rec, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="text-indigo-600 mt-1">•</span>
+                              <span>{rec}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Market Trends */}
+                      <div className="p-4 bg-teal-50 border border-teal-200 rounded-lg">
+                        <h4 className="font-medium text-teal-900 mb-2">AI Market Trends & Outlook</h4>
+                        <div className="text-sm text-teal-800">
+                          {aiAnalysis.marketTrends}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* AI Analysis Loading State */}
+                  {isAnalyzing && (
+                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                        <span className="text-sm text-gray-700">
+                          AI analysis in progress...
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex gap-3">
                     <Button variant="default" className="flex-1">
