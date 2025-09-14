@@ -11,7 +11,7 @@
   status = 200
 
 [context.production.environment]
-  VITE_GEMINI_API_KEY = "AIzaSyDeUwQfZzVDZPkhKeXHEhDjt6gIYLCpSBk"
+  VITE_GEMINI_API_KEY = "AIzaSyCtTiwSWvWAQ1woiKc5GRxfEmVh_YaQT-o"
 
 [context.deploy-preview.environment]
-  VITE_GEMINI_API_KEY = "AIzaSyDeUwQfZzVDZPkhKeXHEhDjt6gIYLCpSBk"
+  VITE_GEMINI_API_KEY = "AIzaSyCtTiwSWvWAQ1woiKc5GRxfEmVh_YaQT-o"
