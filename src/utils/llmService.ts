@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Initialize Gemini client
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+// Initialize Gemini client - will be reinitialized with proper key in functions
+let genAI: GoogleGenerativeAI;
 
 export interface SoilHealthAnalysis {
   pH: string;
@@ -29,8 +29,18 @@ export interface ComprehensiveAnalysis {
 
 export const analyzeSoilHealthWithLLM = async (pdfText: string): Promise<SoilHealthAnalysis> => {
   try {
-    // Get the generative model
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash",  });
+    // Check if API key is available and initialize client
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    console.log('Soil Analysis - API Key available:', !!apiKey);
+    console.log('Soil Analysis - API Key length:', apiKey?.length || 0);
+    
+    if (!apiKey) {
+      throw new Error('Gemini API key not found');
+    }
+    
+    // Initialize client with API key
+    genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `You are an agricultural expert analyzing soil health data from a PDF document. 
 
@@ -128,6 +138,8 @@ export const getComprehensiveAnalysis = async (
       throw new Error('Gemini API key not found');
     }
     
+    // Initialize client with API key
+    genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `You are an expert agricultural consultant analyzing a complete farm profile for crop recommendations.
@@ -181,11 +193,14 @@ Guidelines:
 6. Return ONLY valid JSON, no additional text`;
 
     console.log('Making API call to Gemini...');
+    console.log('Using API Key:', apiKey.substring(0, 10) + '...' + apiKey.substring(apiKey.length - 4));
+    
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
     
     console.log('Gemini API response received:', text.substring(0, 200) + '...');
+    console.log('Full response length:', text.length);
 
     // Clean up the response to ensure it's valid JSON
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -220,12 +235,12 @@ Guidelines:
         ]
       },
       cropRecommendation: {
-        crop: "Rice (Basmati)",
-        yield: "4.2 tons/hectare",
-        profit: "₹85,000 per hectare",
-        irrigation: "SRI Method - 7 day interval",
-        fertilizer: "NPK 120:60:40 kg/ha",
-        confidence: 75
+        crop: "⚠️ API ERROR - FALLBACK DATA ⚠️ Rice (Basmati)",
+        yield: "4.2 tons/hectare (FALLBACK)",
+        profit: "₹85,000 per hectare (FALLBACK)",
+        irrigation: "SRI Method - 7 day interval (FALLBACK)",
+        fertilizer: "NPK 120:60:40 kg/ha (FALLBACK)",
+        confidence: 0
       },
       detailedAnalysis: "Based on the provided data, the soil shows moderate fertility levels. The recommended crop is suitable for the current season and soil conditions. Regular monitoring and proper management practices will ensure optimal yields.",
       implementationPlan: [

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Environment Variable Test</title>
+</head>
+<body>
+    <h1>Environment Variable Test</h1>
+    <div id="result"></div>
+    
+    <script type="module">
+        // Test if environment variables are available in production
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        const result = document.getElementById('result');
+        
+        result.innerHTML = `
+            <p><strong>API Key Available:</strong> ${!!apiKey}</p>
+            <p><strong>API Key Length:</strong> ${apiKey?.length || 0}</p>
+            <p><strong>API Key Preview:</strong> ${apiKey ? apiKey.substring(0, 10) + '...' + apiKey.substring(apiKey.length - 4) : 'Not found'}</p>
+            <p><strong>Environment Mode:</strong> ${import.meta.env.MODE}</p>
+            <p><strong>Production:</strong> ${import.meta.env.PROD}</p>
+            <p><strong>Development:</strong> ${import.meta.env.DEV}</p>
+        `;
+        
+        console.log('Environment Test Results:');
+        console.log('API Key Available:', !!apiKey);
+        console.log('API Key Length:', apiKey?.length || 0);
+        console.log('Mode:', import.meta.env.MODE);
+        console.log('Production:', import.meta.env.PROD);
+        console.log('All env vars:', import.meta.env);
+    </script>
+</body>
+</html>
