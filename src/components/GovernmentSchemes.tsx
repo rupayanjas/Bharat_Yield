@@ -1,18 +1,34 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Shield, 
-  IndianRupee, 
-  Users, 
-  Calendar, 
-  FileText, 
-  CheckCircle, 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Calendar,
+  CheckCircle,
+  Droplets,
   ExternalLink,
-  TrendingUp,
+  FileText,
+  IndianRupee,
+  Shield,
   Sprout,
-  Droplets
+  TrendingUp,
+  Users
 } from "lucide-react";
+import { useEffect, useState } from "react";
+
+interface Scheme  {
+    id: number;
+    title: string;
+    description: string;
+    amount: string;
+    eligibility: string;
+    status: string;
+    category: string;
+    icon: any;
+    documents: string[];
+    benefits: string;
+    lastDate: string;
+    color: string;
+  }
 
 const GovernmentSchemes = () => {
   const schemes = [
@@ -88,6 +104,8 @@ const GovernmentSchemes = () => {
     }
   ];
 
+  const [allSchemes,setAllSchemes]=useState<Scheme[]>([]);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Active": return "success";
@@ -96,6 +114,21 @@ const GovernmentSchemes = () => {
       default: return "secondary";
     }
   };
+
+  const mockServer=async (): Promise<Scheme[]>=>{
+    return new Promise((res)=>{
+      setTimeout(() => {
+        res(schemes)
+      }, Math.random()*1000);
+    });
+  }
+
+  useEffect(()=>{
+    (async()=>{
+      const data=await mockServer();
+      setAllSchemes(data)
+    })()
+  },[])
 
   return (
     <section id="schemes" className="py-20 bg-gradient-to-br from-primary/5 to-success/5">
@@ -115,7 +148,7 @@ const GovernmentSchemes = () => {
             <div className="flex items-center justify-center mb-3">
               <TrendingUp className="h-8 w-8 text-success" />
             </div>
-            <h3 className="text-2xl font-bold text-success">150+</h3>
+            <h3 className="text-2xl font-bold text-success">{allSchemes.length}+</h3>
             <p className="text-sm text-muted-foreground">Active Schemes</p>
           </Card>
           <Card className="text-center p-6">
@@ -143,7 +176,7 @@ const GovernmentSchemes = () => {
 
         {/* Schemes Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
-          {schemes.map((scheme) => (
+          {allSchemes.map((scheme) => (
             <Card key={scheme.id} className="shadow-field hover:shadow-harvest transition-all duration-300">
               <CardHeader>
                 <div className="flex items-start justify-between">

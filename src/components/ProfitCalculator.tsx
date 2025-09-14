@@ -95,11 +95,12 @@ const ProfitCalculator = () => {
       crop: formData.crop,
       totalRevenue,
       totalCost,
-      netProfit,
+      netProfit: parseFloat(`${netProfit/landSize}`), // per acre
       profitMargin,
       roiPercentage,
       breakEvenYield,
     };
+    console.log(profitData)
 
     setCalculation(profitData);
 
