@@ -150,7 +150,7 @@ const GovernmentSchemes = () => {
       benefits: "Infrastructure development, technology adoption, capacity building",
       lastDate: "Ongoing",
       color: "success",
-      link: "https://rkvy.nic.in"
+      link: "https://share.google/tb8vKjmd5ATs0SxBO"
     },
     {
       id: 9,
@@ -165,7 +165,7 @@ const GovernmentSchemes = () => {
       benefits: "Financial support for organic inputs, certification assistance",
       lastDate: "Ongoing",
       color: "success",
-      link: "https://pkvy.nic.in"
+      link: "https://share.google/t4OBahzTUnn7b0kEG"
     },
     {
       id: 10,
@@ -225,7 +225,7 @@ const GovernmentSchemes = () => {
       benefits: "Drone subsidy, AI tools, digital farming solutions",
       lastDate: "Ongoing",
       color: "success",
-      link: "https://agricoop.gov.in"
+      link: "https://share.google/Y1VCx5LUAn8e9QiIP"
     },
     {
       id: 14,
