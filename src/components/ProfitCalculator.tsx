@@ -60,6 +60,49 @@ const ProfitCalculator = () => {
   });
   const [calculation, setCalculation] = useState<ProfitCalculation | null>(null);
 
+  // Validation states
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+
+  // Validation functions
+  const validateField = (field: string, value: string): string => {
+    const numValue = parseFloat(value);
+    if (value && (isNaN(numValue) || numValue < 0)) {
+      switch (field) {
+        case 'landSize':
+          return "Farm size cannot be negative. Please enter a valid size.";
+        case 'expectedYield':
+          return "Expected yield cannot be negative. Please enter a valid yield.";
+        case 'marketPrice':
+          return "Market price cannot be negative. Please enter a valid price.";
+        case 'seedCost':
+          return "Seed cost cannot be negative. Please enter a valid amount.";
+        case 'fertilizerCost':
+          return "Fertilizer cost cannot be negative. Please enter a valid amount.";
+        case 'laborCost':
+          return "Labor cost cannot be negative. Please enter a valid amount.";
+        case 'irrigationCost':
+          return "Irrigation cost cannot be negative. Please enter a valid amount.";
+        case 'otherCosts':
+          return "Other costs cannot be negative. Please enter a valid amount.";
+        default:
+          return "Value cannot be negative. Please enter a valid amount.";
+      }
+    }
+    return '';
+  };
+
+  const handleFieldChange = (field: string, value: string) => {
+    // Update form data
+    setFormData(prev => ({ ...prev, [field]: value }));
+
+    // Validate and update errors
+    const error = validateField(field, value);
+    setValidationErrors(prev => ({
+      ...prev,
+      [field]: error
+    }));
+  };
+
   // Auto-fill farm size from user profile
   useEffect(() => {
     if (isAuthenticated && user?.farmSize) {
@@ -251,8 +294,12 @@ Guidelines:
                     type="number"
                     placeholder="2.5"
                     value={formData.landSize}
-                    onChange={(e) => setFormData({...formData, landSize: e.target.value})}
+                    onChange={(e) => handleFieldChange('landSize', e.target.value)}
+                    className={validationErrors.landSize ? 'border-red-500' : ''}
                   />
+                  {validationErrors.landSize && (
+                    <p className="text-sm text-red-500 mt-1">{validationErrors.landSize}</p>
+                  )}
                 </div>
                 <div>
                   <Label>Expected Yield (Quintal/Acre)</Label>
@@ -260,8 +307,12 @@ Guidelines:
                     type="number"
                     placeholder="40"
                     value={formData.expectedYield}
-                    onChange={(e) => setFormData({...formData, expectedYield: e.target.value})}
+                    onChange={(e) => handleFieldChange('expectedYield', e.target.value)}
+                    className={validationErrors.expectedYield ? 'border-red-500' : ''}
                   />
+                  {validationErrors.expectedYield && (
+                    <p className="text-sm text-red-500 mt-1">{validationErrors.expectedYield}</p>
+                  )}
                 </div>
               </div>
 
@@ -274,8 +325,12 @@ Guidelines:
                   type="number"
                   placeholder="2100"
                   value={formData.marketPrice}
-                  onChange={(e) => setFormData({...formData, marketPrice: e.target.value})}
+                  onChange={(e) => handleFieldChange('marketPrice', e.target.value)}
+                  className={validationErrors.marketPrice ? 'border-red-500' : ''}
                 />
+                {validationErrors.marketPrice && (
+                  <p className="text-sm text-red-500 mt-1">{validationErrors.marketPrice}</p>
+                )}
               </div>
 
               {/* Cost Breakdown */}
@@ -289,8 +344,12 @@ Guidelines:
                       type="number"
                       placeholder="5000"
                       value={formData.seedCost}
-                      onChange={(e) => setFormData({...formData, seedCost: e.target.value})}
+                      onChange={(e) => handleFieldChange('seedCost', e.target.value)}
+                      className={validationErrors.seedCost ? 'border-red-500' : ''}
                     />
+                    {validationErrors.seedCost && (
+                      <p className="text-sm text-red-500 mt-1">{validationErrors.seedCost}</p>
+                    )}
                   </div>
                   <div>
                     <Label>Fertilizer Cost</Label>
@@ -298,8 +357,12 @@ Guidelines:
                       type="number"
                       placeholder="8000"
                       value={formData.fertilizerCost}
-                      onChange={(e) => setFormData({...formData, fertilizerCost: e.target.value})}
+                      onChange={(e) => handleFieldChange('fertilizerCost', e.target.value)}
+                      className={validationErrors.fertilizerCost ? 'border-red-500' : ''}
                     />
+                    {validationErrors.fertilizerCost && (
+                      <p className="text-sm text-red-500 mt-1">{validationErrors.fertilizerCost}</p>
+                    )}
                   </div>
                   <div>
                     <Label>Labor Cost</Label>
@@ -307,8 +370,12 @@ Guidelines:
                       type="number"
                       placeholder="12000"
                       value={formData.laborCost}
-                      onChange={(e) => setFormData({...formData, laborCost: e.target.value})}
+                      onChange={(e) => handleFieldChange('laborCost', e.target.value)}
+                      className={validationErrors.laborCost ? 'border-red-500' : ''}
                     />
+                    {validationErrors.laborCost && (
+                      <p className="text-sm text-red-500 mt-1">{validationErrors.laborCost}</p>
+                    )}
                   </div>
                   <div>
                     <Label>Irrigation Cost</Label>
@@ -316,8 +383,12 @@ Guidelines:
                       type="number"
                       placeholder="3000"
                       value={formData.irrigationCost}
-                      onChange={(e) => setFormData({...formData, irrigationCost: e.target.value})}
+                      onChange={(e) => handleFieldChange('irrigationCost', e.target.value)}
+                      className={validationErrors.irrigationCost ? 'border-red-500' : ''}
                     />
+                    {validationErrors.irrigationCost && (
+                      <p className="text-sm text-red-500 mt-1">{validationErrors.irrigationCost}</p>
+                    )}
                   </div>
                 </div>
 
@@ -327,8 +398,12 @@ Guidelines:
                     type="number"
                     placeholder="5000"
                     value={formData.otherCosts}
-                    onChange={(e) => setFormData({...formData, otherCosts: e.target.value})}
+                    onChange={(e) => handleFieldChange('otherCosts', e.target.value)}
+                    className={validationErrors.otherCosts ? 'border-red-500' : ''}
                   />
+                  {validationErrors.otherCosts && (
+                    <p className="text-sm text-red-500 mt-1">{validationErrors.otherCosts}</p>
+                  )}
                 </div>
               </div>
 

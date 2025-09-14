@@ -67,6 +67,68 @@ const CropAdvisor = () => {
   const [comprehensiveAnalysis, setComprehensiveAnalysis] = useState<ComprehensiveAnalysis | null>(null);
   const [isProcessingPdf, setIsProcessingPdf] = useState(false);
 
+  // Validation states
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
+
+  // Validation functions
+  const validateField = (field: string, value: string): string => {
+    switch (field) {
+      case 'landSize':
+        const landSize = parseFloat(value);
+        if (value && (isNaN(landSize) || landSize < 0)) {
+          return "Oops! Farm size can't be negative. Please enter a valid size.";
+        }
+        break;
+      case 'budget':
+        const budget = parseFloat(value);
+        if (value && (isNaN(budget) || budget < 0)) {
+          return "Oops! Budget can't be negative. Please enter a valid amount.";
+        }
+        break;
+      case 'pH':
+        const pH = parseFloat(value);
+        if (value && (isNaN(pH) || pH < 0 || pH > 14)) {
+          return "Oops! Looks like your soil pH is out of range. Please re-check (pH should be between 0–14).";
+        }
+        break;
+      case 'nitrogen':
+        const nitrogen = parseFloat(value);
+        if (value && (isNaN(nitrogen) || nitrogen < 0 || nitrogen > 30000)) {
+          return "Oops! Looks like your nitrogen data is out of range. Please re-check (0–30,000 kg/ha).";
+        }
+        break;
+      case 'phosphorus':
+        const phosphorus = parseFloat(value);
+        if (value && (isNaN(phosphorus) || phosphorus < 2 || phosphorus > 80)) {
+          return "Oops! Looks like your phosphorus data is out of range. Please re-check (2–80 kg/ha).";
+        }
+        break;
+      case 'potassium':
+        const potassium = parseFloat(value);
+        if (value && (isNaN(potassium) || potassium < 50 || potassium > 900)) {
+          return "Oops! Looks like your potassium data is out of range. Please re-check (50–900 kg/ha).";
+        }
+        break;
+    }
+    return '';
+  };
+
+  const handleFieldChange = (field: string, value: string) => {
+    // Update form data
+    if (field === 'pH' || field === 'nitrogen' || field === 'phosphorus' || field === 'potassium') {
+      setSoilHealthData(prev => ({ ...prev, [field]: value }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
+
+    // Validate and update errors
+    const error = validateField(field, value);
+    setValidationErrors(prev => ({
+      ...prev,
+      [field]: error
+    }));
+  };
+
   // Auto-fill user data if logged in
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -185,7 +247,7 @@ const CropAdvisor = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Crop Advisor
+            AI Crop Advisor
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Choose the best crop based on soil and weather data
@@ -226,8 +288,12 @@ const CropAdvisor = () => {
                     type="number"
                     placeholder="2.5"
                     value={formData.landSize}
-                    onChange={(e) => setFormData({...formData, landSize: e.target.value})}
+                    onChange={(e) => handleFieldChange('landSize', e.target.value)}
+                    className={validationErrors.landSize ? 'border-red-500' : ''}
                   />
+                  {validationErrors.landSize && (
+                    <p className="text-sm text-red-500 mt-1">{validationErrors.landSize}</p>
+                  )}
                 </div>
 
                 {/* Season */}
@@ -258,8 +324,12 @@ const CropAdvisor = () => {
                     type="number"
                     placeholder="50000"
                     value={formData.budget}
-                    onChange={(e) => setFormData({...formData, budget: e.target.value})}
+                    onChange={(e) => handleFieldChange('budget', e.target.value)}
+                    className={validationErrors.budget ? 'border-red-500' : ''}
                   />
+                  {validationErrors.budget && (
+                    <p className="text-sm text-red-500 mt-1">{validationErrors.budget}</p>
+                  )}
                 </div>
 
                 {/* Soil Health Card Upload */}
@@ -310,34 +380,55 @@ const CropAdvisor = () => {
                   <div>
                     <Label>pH</Label>
                     <Input
+                      type="number"
+                      step="0.1"
                       placeholder="6.5"
                       value={soilHealthData.pH}
-                      onChange={(e) => setSoilHealthData({...soilHealthData, pH: e.target.value})}
+                      onChange={(e) => handleFieldChange('pH', e.target.value)}
+                      className={validationErrors.pH ? 'border-red-500' : ''}
                     />
+                    {validationErrors.pH && (
+                      <p className="text-sm text-red-500 mt-1">{validationErrors.pH}</p>
+                    )}
                   </div>
                   <div>
                     <Label>Nitrogen (kg/ha)</Label>
                     <Input
+                      type="number"
                       placeholder="280"
                       value={soilHealthData.nitrogen}
-                      onChange={(e) => setSoilHealthData({...soilHealthData, nitrogen: e.target.value})}
+                      onChange={(e) => handleFieldChange('nitrogen', e.target.value)}
+                      className={validationErrors.nitrogen ? 'border-red-500' : ''}
                     />
+                    {validationErrors.nitrogen && (
+                      <p className="text-sm text-red-500 mt-1">{validationErrors.nitrogen}</p>
+                    )}
                   </div>
                   <div>
                     <Label>Phosphorus (kg/ha)</Label>
                     <Input
+                      type="number"
                       placeholder="15"
                       value={soilHealthData.phosphorus}
-                      onChange={(e) => setSoilHealthData({...soilHealthData, phosphorus: e.target.value})}
+                      onChange={(e) => handleFieldChange('phosphorus', e.target.value)}
+                      className={validationErrors.phosphorus ? 'border-red-500' : ''}
                     />
+                    {validationErrors.phosphorus && (
+                      <p className="text-sm text-red-500 mt-1">{validationErrors.phosphorus}</p>
+                    )}
                   </div>
                   <div>
                     <Label>Potassium (kg/ha)</Label>
                     <Input
+                      type="number"
                       placeholder="180"
                       value={soilHealthData.potassium}
-                      onChange={(e) => setSoilHealthData({...soilHealthData, potassium: e.target.value})}
+                      onChange={(e) => handleFieldChange('potassium', e.target.value)}
+                      className={validationErrors.potassium ? 'border-red-500' : ''}
                     />
+                    {validationErrors.potassium && (
+                      <p className="text-sm text-red-500 mt-1">{validationErrors.potassium}</p>
+                    )}
                   </div>
                 </div>
 
