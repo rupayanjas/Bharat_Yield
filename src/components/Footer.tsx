@@ -19,6 +19,13 @@ const Footer = () => {
     { name: "PM-KISAN Samman Nidhi", href: "#schemes" },
     { name: "Pradhan Mantri Fasal Bima Yojana", href: "#schemes" },
     { name: "Kisan Credit Card (KCC)", href: "#schemes" },
+    { name: "RKVY (Rashtriya Krishi Vikas Yojana)", href: "#schemes" },
+    { name: "PKVY (Organic Farming)", href: "#schemes" },
+    { name: "Soil Health Card Scheme", href: "#schemes" },
+    { name: "National Mission for Sustainable Agriculture", href: "#schemes" },
+    { name: "Paramparagat Krishi Vikas Yojana", href: "#schemes" },
+    { name: "Digital Agriculture Mission", href: "#schemes" },
+    { name: "Agriculture Infrastructure Fund", href: "#schemes" },
   ];
 
   return (
@@ -53,19 +60,18 @@ const Footer = () => {
               <span className="w-2 h-2 bg-success rounded-full"></span>
               Government Schemes
             </h3>
-            <ul className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
               {govSchemes.map((scheme, index) => (
-                <li key={index}>
-                  <button
-                    type="button"
-                    onClick={() => scrollToSection(scheme.href.replace("#", ""))}
-                    className="text-left w-full text-muted-foreground hover:text-success hover:font-semibold transition-all duration-300 transform hover:translate-x-1"
-                  >
-                    {scheme.name}
-                  </button>
-                </li>
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => scrollToSection(scheme.href.replace("#", ""))}
+                  className="text-left text-muted-foreground hover:text-success hover:font-semibold transition-all duration-300 transform hover:translate-x-1 text-sm"
+                >
+                  {scheme.name}
+                </button>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
       </div>

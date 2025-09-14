@@ -378,7 +378,7 @@ const CropAdvisor = () => {
                 {/* Manual Soil Data */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>pH</Label>
+                    <Label>pH (0–14)</Label>
                     <Input
                       type="number"
                       step="0.1"
@@ -392,7 +392,7 @@ const CropAdvisor = () => {
                     )}
                   </div>
                   <div>
-                    <Label>Nitrogen (kg/ha)</Label>
+                    <Label>Nitrogen (0–30000 kg/ha)</Label>
                     <Input
                       type="number"
                       placeholder="280"
@@ -405,7 +405,7 @@ const CropAdvisor = () => {
                     )}
                   </div>
                   <div>
-                    <Label>Phosphorus (kg/ha)</Label>
+                    <Label>Phosphorus (2–80 kg/ha)</Label>
                     <Input
                       type="number"
                       placeholder="15"
@@ -418,7 +418,7 @@ const CropAdvisor = () => {
                     )}
                   </div>
                   <div>
-                    <Label>Potassium (kg/ha)</Label>
+                    <Label>Potassium (50–900 kg/ha)</Label>
                     <Input
                       type="number"
                       placeholder="180"

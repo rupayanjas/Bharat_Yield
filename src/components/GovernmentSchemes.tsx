@@ -330,7 +330,7 @@ const GovernmentSchemes = () => {
       benefits: "Digital tools, technology adoption, innovation support",
       lastDate: "Ongoing",
       color: "success",
-      link: "https://agricoop.gov.in"
+      link: "https://share.google/Y1VCx5LUAn8e9QiIP"
     }
   ];
 
