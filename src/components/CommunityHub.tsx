@@ -238,13 +238,6 @@ const CommunityHub = () => {
                   </CardContent>
                 </Card>
               ))}
-
-              {/* Load More */}
-              <div className="text-center">
-                <Button variant="outline" size="lg">
-                  Load More Posts
-                </Button>
-              </div>
             </div>
           </div>
         </div>

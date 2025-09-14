@@ -58,6 +58,7 @@ const CropAdvisor = () => {
     organicCarbon: "",
   });
 
+  const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
   const [recommendation, setRecommendation] = useState<CropRecommendation | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   
@@ -77,6 +78,84 @@ const CropAdvisor = () => {
       }));
     }
   }, [isAuthenticated, user]);
+
+  // Validation functions
+  const validateField = (name: string, value: string) => {
+    const errors: {[key: string]: string} = {};
+    
+    switch (name) {
+      case 'landSize':
+        if (parseFloat(value) < 0) {
+          errors[name] = "Farm size cannot be negative";
+        }
+        break;
+      case 'budget':
+        if (parseFloat(value) < 0) {
+          errors[name] = "Budget cannot be negative";
+        }
+        break;
+      case 'pH':
+        const pH = parseFloat(value);
+        if (value && (pH < 0 || pH > 14)) {
+          errors[name] = "Oops! Looks like your soil data is out of range. Please re-check (pH should be between 0–14)";
+        }
+        break;
+      case 'nitrogen':
+        const nitrogen = parseFloat(value);
+        if (value && (nitrogen < 0 || nitrogen > 30000)) {
+          errors[name] = "Oops! Looks like your soil data is out of range. Please re-check (Nitrogen should be between 0–30000 kg/ha)";
+        }
+        break;
+      case 'phosphorus':
+        const phosphorus = parseFloat(value);
+        if (value && (phosphorus < 2 || phosphorus > 80)) {
+          errors[name] = "Oops! Looks like your soil data is out of range. Please re-check (Phosphorus should be between 2–80 kg/ha)";
+        }
+        break;
+      case 'potassium':
+        const potassium = parseFloat(value);
+        if (value && (potassium < 50 || potassium > 900)) {
+          errors[name] = "Oops! Looks like your soil data is out of range. Please re-check (Potassium should be between 50–900 kg/ha)";
+        }
+        break;
+    }
+    
+    return errors;
+  };
+
+  const handleFormDataChange = (name: string, value: string) => {
+    setFormData({...formData, [name]: value});
+    
+    // Clear existing error for this field
+    setValidationErrors(prev => {
+      const newErrors = {...prev};
+      delete newErrors[name];
+      return newErrors;
+    });
+    
+    // Validate the field
+    const fieldErrors = validateField(name, value);
+    if (Object.keys(fieldErrors).length > 0) {
+      setValidationErrors(prev => ({...prev, ...fieldErrors}));
+    }
+  };
+
+  const handleSoilDataChange = (name: string, value: string) => {
+    setSoilHealthData({...soilHealthData, [name]: value});
+    
+    // Clear existing error for this field
+    setValidationErrors(prev => {
+      const newErrors = {...prev};
+      delete newErrors[name];
+      return newErrors;
+    });
+    
+    // Validate the field
+    const fieldErrors = validateField(name, value);
+    if (Object.keys(fieldErrors).length > 0) {
+      setValidationErrors(prev => ({...prev, ...fieldErrors}));
+    }
+  };
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -187,7 +266,7 @@ const CropAdvisor = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Crop Advisor
+            AI Crop Advisor
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Choose the best crop based on soil and weather data
@@ -228,8 +307,13 @@ const CropAdvisor = () => {
                     type="number"
                     placeholder="2.5"
                     value={formData.landSize}
-                    onChange={(e) => setFormData({...formData, landSize: e.target.value})}
+                    onChange={(e) => handleFormDataChange('landSize', e.target.value)}
+                    min="0"
+                    step="0.1"
                   />
+                  {validationErrors.landSize && (
+                    <p className="text-sm text-red-500 mt-1">{validationErrors.landSize}</p>
+                  )}
                 </div>
 
                 {/* Season */}
@@ -260,8 +344,12 @@ const CropAdvisor = () => {
                     type="number"
                     placeholder="50000"
                     value={formData.budget}
-                    onChange={(e) => setFormData({...formData, budget: e.target.value})}
+                    onChange={(e) => handleFormDataChange('budget', e.target.value)}
+                    min="0"
                   />
+                  {validationErrors.budget && (
+                    <p className="text-sm text-red-500 mt-1">{validationErrors.budget}</p>
+                  )}
                 </div>
 
                 {/* Soil Health Card Upload */}
@@ -310,36 +398,61 @@ const CropAdvisor = () => {
                 {/* Manual Soil Data */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>pH</Label>
+                    <Label>pH (0–14)</Label>
                     <Input
+                      type="number"
                       placeholder="6.5"
                       value={soilHealthData.pH}
-                      onChange={(e) => setSoilHealthData({...soilHealthData, pH: e.target.value})}
+                      onChange={(e) => handleSoilDataChange('pH', e.target.value)}
+                      min="0"
+                      max="14"
+                      step="0.1"
                     />
+                    {validationErrors.pH && (
+                      <p className="text-sm text-red-500 mt-1">{validationErrors.pH}</p>
+                    )}
                   </div>
                   <div>
-                    <Label>Nitrogen (kg/ha)</Label>
+                    <Label>Nitrogen (0–30000 kg/ha)</Label>
                     <Input
+                      type="number"
                       placeholder="280"
                       value={soilHealthData.nitrogen}
-                      onChange={(e) => setSoilHealthData({...soilHealthData, nitrogen: e.target.value})}
+                      onChange={(e) => handleSoilDataChange('nitrogen', e.target.value)}
+                      min="0"
+                      max="30000"
                     />
+                    {validationErrors.nitrogen && (
+                      <p className="text-sm text-red-500 mt-1">{validationErrors.nitrogen}</p>
+                    )}
                   </div>
                   <div>
-                    <Label>Phosphorus (kg/ha)</Label>
+                    <Label>Phosphorus (2–80 kg/ha)</Label>
                     <Input
+                      type="number"
                       placeholder="15"
                       value={soilHealthData.phosphorus}
-                      onChange={(e) => setSoilHealthData({...soilHealthData, phosphorus: e.target.value})}
+                      onChange={(e) => handleSoilDataChange('phosphorus', e.target.value)}
+                      min="2"
+                      max="80"
                     />
+                    {validationErrors.phosphorus && (
+                      <p className="text-sm text-red-500 mt-1">{validationErrors.phosphorus}</p>
+                    )}
                   </div>
                   <div>
-                    <Label>Potassium (kg/ha)</Label>
+                    <Label>Potassium (50–900 kg/ha)</Label>
                     <Input
+                      type="number"
                       placeholder="180"
                       value={soilHealthData.potassium}
-                      onChange={(e) => setSoilHealthData({...soilHealthData, potassium: e.target.value})}
+                      onChange={(e) => handleSoilDataChange('potassium', e.target.value)}
+                      min="50"
+                      max="900"
                     />
+                    {validationErrors.potassium && (
+                      <p className="text-sm text-red-500 mt-1">{validationErrors.potassium}</p>
+                    )}
                   </div>
                 </div>
 
