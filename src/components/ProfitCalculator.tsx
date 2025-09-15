@@ -118,17 +118,17 @@ const ProfitCalculator = () => {
     const landSize = parseFloat(formData.landSize);
     const expectedYield = parseFloat(formData.expectedYield);
     const marketPrice = parseFloat(formData.marketPrice);
-    
+
     const totalProduction = landSize * expectedYield;
     const totalRevenue = totalProduction * marketPrice;
-    
-    const totalCost = 
+
+    const totalCost =
       parseFloat(formData.seedCost || "0") +
       parseFloat(formData.fertilizerCost || "0") +
       parseFloat(formData.laborCost || "0") +
       parseFloat(formData.irrigationCost || "0") +
       parseFloat(formData.otherCosts || "0");
-    
+
     const netProfit = totalRevenue - totalCost;
     const profitMargin = (netProfit / totalRevenue) * 100;
     const roiPercentage = (netProfit / totalCost) * 100;
@@ -218,7 +218,7 @@ Guidelines:
 
     } catch (error) {
       console.error('Error getting AI profit analysis:', error);
-      
+
       // Fallback analysis
       return {
         marketInsights: "Market analysis unavailable. Please consult local agricultural experts for current market conditions.",
@@ -336,7 +336,7 @@ Guidelines:
               {/* Cost Breakdown */}
               <div className="space-y-4">
                 <h4 className="font-medium text-foreground">Cost Breakdown (₹ per acre)</h4>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Seed Cost</Label>
@@ -490,7 +490,7 @@ Guidelines:
                   {/* Financial Ratios */}
                   <div className="space-y-4">
                     <h4 className="font-medium text-foreground">Financial Ratios</h4>
-                    
+
                     <div className="grid grid-cols-1 gap-3">
                       <div className="flex justify-between items-center p-3 bg-earth rounded-lg">
                         <div className="flex items-center gap-2">
