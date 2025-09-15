@@ -633,14 +633,6 @@ Guidelines:
                     </div>
                   )}
 
-                  <div className="flex gap-3">
-                    <Button variant="default" className="flex-1">
-                      Download Report
-                    </Button>
-                    <Button variant="outline" className="flex-1">
-                      Share in Community
-                    </Button>
-                  </div>
                 </div>
               ) : (
                 <div className="text-center py-12">
